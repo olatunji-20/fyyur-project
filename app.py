@@ -296,58 +296,23 @@ def search_artists():
 @app.route('/artists/<int:artist_id>')
 
   # shows the artist page with the given artist_id
-  # TODO: replace with real artist data from the artist table, using artist_id
+  # TODO: replace with real artist data from the artist table, using artist_id DONE
 
 def show_artist(artist_id):
-  artist = Artist.query.filter(Artist.id == artist_id).first()
+  data = Artist.query.filter_by(id=artist_id).first()
 
-  past = db.session.query(Show).filter(Show.artist_id == artist_id).filter(Show.date < datetime.now()).join(Venue, Show.venue_id == Venue.id).add_columns(Venue.id, Venue.name, Venue.image_link, Show.date).all()
+  shows_to_do = []
+  done_shows = []
+  for s in data.shows:
+    if s.date > datetime.now():
+      shows_to_do.append(s)
+    else:
+      done_shows.append(s)
 
-  upcoming = db.session.query(Show).filter(Show.artist_id == artist_id).filter(Show.date > datetime.now()).join(Venue, Show.venue_id == Venue.id).add_columns(Venue.id, Venue.name, Venue.image_link, Show.date).all()
+  data.shows_to_do = shows_to_do
+  data.done_shows = done_shows
 
-  upcoming_shows = []
-
-  past_shows = []
-
-  for i in upcoming:
-    upcoming_shows.append({
-      'venue_id': i[1],
-      'venue_name': i[2],
-      'image_link': i[3],
-      'date': str(i[4])
-  })
-
-  for i in past:
-    past_shows.append({
-      'venue_id': i[1],
-      'venue_name': i[2],
-      'image_link': i[3],
-      'start_time': str(i[4])
-  })
-
-    if artist is None:
-        abort(404)
-
-    response = {
-        "id": artist.id,
-        "name": artist.name,
-        "genres": [artist.genres],
-        "city": artist.city,
-        "state": artist.state,
-        "phone": artist.phone,
-        "website": artist.website,
-        "facebook_link": artist.facebook_link,
-        "seeking_venue": artist.seeking_venue,
-        "seeking_description": artist.seeking_description,
-        "image_link": artist.image_link,
-        "past_shows": past_shows,
-        "upcoming_shows": upcoming_shows,
-        "past_shows_count": len(past),
-        "upcoming_shows_count": len(upcoming),
-    }
-
-
-  return render_template('pages/show_artist.html', artist=response)
+  return render_template('pages/show_artist.html', artist=data)
 
 #  Update
 #  ----------------------------------------------------------------
@@ -528,14 +493,15 @@ def shows():
   data = Show.query.join(Artist, Artist.id == Show.artist_id).join(Venue, Venue.id == Show.venue_id).all()
 
   response = []
-  for show in data:
+
+  for s in data:
     response.append({
-       "venue_id": show.venue_id,
-      "venue_name": show.venue.name,
-      "artist_id": show.artist_id,
-      "artist_name": show.artist.name,
-      "artist_image_link": show.artist.image_link,
-      "start_time": str(show.start_time)
+       "venue_id": s.venue_id,
+      "venue_name": s.venue.name,
+      "artist_id": s.artist_id,
+      "artist_name": s.artist.name,
+      "artist_image_link": s.artist.image_link,
+      "start_time": str(s.date)
     })
 
   
