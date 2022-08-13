@@ -82,8 +82,15 @@ class VenueForm(Form):
     address = StringField(
         'address', validators=[DataRequired()]
     )
+    def phone_validation(self, phone_no):
+        phone_no = '^[+234][-][0-9]{10}$'
+        match = re.search(phone_no, phone_no.data)
+        if not match:
+            raise ValidationError('Phone number is not in the correct format')
+
     phone = StringField(
-        'phone'
+        'phone',
+        validators = [DataRequired(), phone_validation]
     )
     image_link = StringField(
         'image_link'
