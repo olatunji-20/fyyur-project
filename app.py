@@ -32,7 +32,10 @@ moment = Moment(app)
 app.config.from_object('config')
 db.init_app(app)
 migrate = Migrate(app, db)
+<<<<<<< HEAD
 
+=======
+>>>>>>> 435dfd197180fb0fbc40155a44ecf60a8cc61288
 
 
 # TODO: connect to a local postgresql database  DONE
