@@ -123,8 +123,16 @@ class VenueForm(Form):
     facebook_link = StringField(
         'facebook_link', validators=[URL()]
     )
+    
+    def website_validation(self, website_string):
+        website_string = '^[https://][a-z]*[0-9]*[\w]*[a-z]*[0-9]*[\w]*'
+        match = re.search(website_string, website_string.data)
+        if not match:
+            raise ValidationError('The website link is not valid!!!')
+
     website_link = StringField(
-        'website_link'
+        'website_link',
+        validators = [DataRequired(), website_validation]
     )
 
     seeking_talent = BooleanField( 'seeking_talent' )
@@ -198,9 +206,16 @@ class ArtistForm(Form):
             ('WY', 'WY'),
         ]
     )
+    def phone_validation(self, phone_no):
+        phone_no = '^[+234][-][0-9]{10}$'
+        match = re.search(phone_no, phone_no.data)
+        if not match:
+            raise ValidationError('Phone number is not in the correct format')
+
     phone = StringField(
         # TODO implement validation logic for state
-        'phone'
+        'phone',
+        validators = [DataRequired(), phone_validation]
     )
     image_link = StringField(
         'image_link'
@@ -233,9 +248,16 @@ class ArtistForm(Form):
         # TODO implement enum restriction
         'facebook_link', validators=[URL()]
      )
+    
+    def website_validation(self, website_string):
+        website_string = '^[https://][a-z]*[0-9]*[\w]*[a-z]*[0-9]*[\w]*'
+        match = re.search(website_string, website_string.data)
+        if not match:
+            raise ValidationError('The website link is not valid!!!')
 
     website_link = StringField(
-        'website_link'
+        'website_link',
+        validators = [DataRequired(), website_validation]
      )
 
     seeking_venue = BooleanField( 'seeking_venue' )

@@ -32,10 +32,6 @@ moment = Moment(app)
 app.config.from_object('config')
 db.init_app(app)
 migrate = Migrate(app, db)
-<<<<<<< HEAD
-
-=======
->>>>>>> 435dfd197180fb0fbc40155a44ecf60a8cc61288
 
 
 # TODO: connect to a local postgresql database  DONE
@@ -131,17 +127,26 @@ def search_venues():
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
   data = Venue.query.filter_by(id=venue_id).first()
-  
+
+  data_1 = db.session.query(Show).join(Venue).filter(Show.venue_id == venue_id).filter(
+    Show.date < datetime.now()).all()
+
+  data_2 = db.session.query(Show).join(Venue).filter(Show.venue_id == venue_id).filter(
+    Show.date > datetime.now()).all()
+
   shows_to_do = []
   shows_done = []
-  for s in data.shows:
 
-    if s.date > datetime.now():
-      shows_to_do.append(s)
-    else:
-      shows_done.append(s)
-    data.shows_to_do = shows_to_do
-    data.shows_done = shows_done
+  for s in data_1:
+    shows_done.append(s)
+
+  for s in data_2:
+    shows_to_do.append(s)
+
+  data.upcoming_shows = shows_to_do
+  data.past_shows = shows_done
+
+  print(data.upcoming_shows)
 
 
 
@@ -267,16 +272,25 @@ def search_artists():
 def show_artist(artist_id):
   data = Artist.query.filter_by(id=artist_id).first()
 
-  shows_to_do = []
-  done_shows = []
-  for s in data.shows:
-    if s.date > datetime.now():
-      shows_to_do.append(s)
-    else:
-      done_shows.append(s)
+  data_1 = db.session.query(Show).join(Venue).filter(Show.artist_id == artist_id).filter(
+    Show.date < datetime.now()).all()
 
-  data.shows_to_do = shows_to_do
-  data.done_shows = done_shows
+  data_2 = db.session.query(Show).join(Venue).filter(Show.artist_id == artist_id).filter(
+    Show.date > datetime.now()).all()
+
+  shows_to_do = []
+  shows_done = []
+
+  for s in data_1:
+    shows_done.append(s)
+
+  for s in data_2:
+    shows_to_do.append(s)
+
+  data.upcoming_shows = shows_to_do
+  data.past_shows = shows_done
+
+  print(data.upcoming_shows)
 
   return render_template('pages/show_artist.html', artist=data)
 
@@ -304,7 +318,7 @@ def edit_artist_submission(artist_id):
   # TODO: take values from the form submitted, and update existing
   # artist record with ID <artist_id> using the new attributes
   error = False
-  # artist = Artist.query.filter_by(id=artist_id).first()
+
   artist = Artist.query.get(artist_id)
   
   try:
@@ -319,7 +333,6 @@ def edit_artist_submission(artist_id):
     # artist.seeking_venue = True if 'seeking_venue' in request.form else False
     # artist.seeking_description = request.form['seeking_description']
 
-    # db.session.add(json.load(artist))
     db.session.commit()
 
   except Exception as e:
